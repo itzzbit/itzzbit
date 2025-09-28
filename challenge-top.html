@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GD Demon List - Топ игроков в испытаниях</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1 class="logo-gradient">GD ТОП ИСПЫТАНИЙ</h1>
+            <nav>
+                <a href="index.html">Топ уровней</a>
+                <a href="players.html">Топ игроков</a>
+                <a href="challenge-list.html">Список испытаний</a>
+                <a href="challenge-top.html" class="active">Топ испытаний</a>
+                <a href="verify.html">Верификация</a>
+                <a href="about.html">О нас</a>
+            </nav>
+        </header>
+
+        <main class="main-content">
+            <div class="list-info">
+                <h2>🏆 Топ игроков в испытаниях</h2>
+                <p>Рейтинг игроков по очкам за прохождение испытаний</p>
+            </div>
+            
+            <!-- Статистика -->
+            <div class="stats-container">
+                <div class="stat-card">
+                    <div class="stat-value">${window.gdData.players.length}</div>
+                    <div class="stat-label">Всего игроков</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">${window.gdData.challenges.length}</div>
+                    <div class="stat-label">Всего испытаний</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">${Math.max(...window.gdData.players.map(p => p.challengePoints))}</div>
+                    <div class="stat-label">Максимум очков</div>
+                </div>
+            </div>
+            
+            <!-- Поиск и фильтры -->
+            <div class="search-container">
+                <input type="text" id="player-search" placeholder="Поиск игроков...">
+                <button id="search-btn">Найти</button>
+            </div>
+            
+            <div class="filter-container">
+                <button class="filter-btn active" data-filter="all">Все игроки</button>
+                <button class="filter-btn" data-filter="admin">Администраторы</button>
+                <button class="filter-btn" data-filter="top-5">Топ-5 игроков</button>
+                <button class="filter-btn" data-filter="completed-all">Прошли все испытания</button>
+            </div>
+            
+            <div id="challenge-players-container">
+                <!-- Игроки в испытаниях загружаются через JavaScript -->
+            </div>
+        </main>
+    </div>
+
+    <script src="data.js"></script>
+    <script>
+        function renderChallengePlayers(players = window.gdData.players) {
+            const container = document.getElementById('challenge-players-container');
+            
+            // Сортируем игроков по очкам в испытаниях
+            const sortedPlayers = [...players].sort((a, b) => b.challengePoints - a.challengePoints);
+            
+            if (sortedPlayers.length === 0) {
+                container.innerHTML = `
+                    <div class="no-results">
+                        <h3>Игроки не найдены</h3>
+                        <p>Попробуйте изменить параметры поиска</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = sortedPlayers.map((player, index) => `
+                <div class="player-item challenge-player">
+                    <div class="player-rank">
+                        ${index + 1}
+                        ${index < 3 ? '<span class="top-badge">🏆</span>' : ''}
+                    </div>
+                    <div class="player-info">
+                        <div class="player-name">
+                            ${player.name}
+                            ${player.isAdmin ? '<span class="admin-badge">Админ</span>' : ''}
+                        </div>
+                        <div class="player-stats">
+                            <span class="challenge-stat">Испытаний: ${player.challenges}</span>
+                            <span class="challenge-stat">Очки: ${player.challengePoints}</span>
+                            <span class="challenge-stat">Рейтинг: ${player.challengeRank}</span>
+                            <span class="completion-rate">Прогресс: ${Math.round((player.challenges / window.gdData.challenges.length) * 100)}%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: ${(player.challenges / window.gdData.challenges.length) * 100}%"></div>
+                        </div>
+                        <div class="passed-levels">
+                            <strong>Пройденные испытания:</strong>
+                            ${player.passedChallenges.map(challengeId => {
+                                const challenge = window.gdData.challenges.find(c => c.id === challengeId);
+                                return challenge ? `<span class="challenge-tag">#${challenge.rank} ${challenge.name}</span>` : '';
+                            }).filter(Boolean).join('')}
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Поиск игроков
+        function setupPlayerSearch() {
+            const searchInput = document.getElementById('player-search');
+            const searchBtn = document.getElementById('search-btn');
+            
+            function performSearch() {
+                const query = searchInput.value.trim();
+                if (query === '') {
+                    renderChallengePlayers();
+                } else {
+                    const filteredPlayers = window.gdData.searchPlayers(query);
+                    renderChallengePlayers(filteredPlayers);
+                }
+            }
+            
+            searchBtn.addEventListener('click', performSearch);
+            searchInput.addEventListener('keyup', function(event) {
+                if (event.key === 'Enter') {
+                    performSearch();
+                }
+            });
+        }
+
+        // Фильтрация игроков
+        function setupPlayerFilters() {
+            const filterBtns = document.querySelectorAll('.filter-btn');
+            
+            filterBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    // Убрать активный класс со всех кнопок
+                    filterBtns.forEach(b => b.classList.remove('active'));
+                    // Добавить активный класс к текущей кнопке
+                    this.classList.add('active');
+                    
+                    const filter = this.dataset.filter;
+                    let filteredPlayers = [...window.gdData.players];
+                    
+                    switch(filter) {
+                        case 'admin':
+                            filteredPlayers = filteredPlayers.filter(player => player.isAdmin);
+                            break;
+                        case 'top-5':
+                            filteredPlayers = filteredPlayers
+                                .sort((a, b) => b.challengePoints - a.challengePoints)
+                                .slice(0, 5);
+                            break;
+                        case 'completed-all':
+                            filteredPlayers = filteredPlayers.filter(player => 
+                                player.challenges === window.gdData.challenges.length
+                            );
+                            break;
+                        default:
+                            // "all" - ничего не фильтруем
+                            break;
+                    }
+                    
+                    renderChallengePlayers(filteredPlayers);
+                });
+            });
+        }
+
+        // Обновление статистики
+        function updateStats() {
+            const totalPlayers = window.gdData.players.length;
+            const totalChallenges = window.gdData.challenges.length;
+            const maxPoints = Math.max(...window.gdData.players.map(p => p.challengePoints));
+            
+            document.querySelector('.stats-container').innerHTML = `
+                <div class="stat-card">
+                    <div class="stat-value">${totalPlayers}</div>
+                    <div class="stat-label">Всего игроков</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">${totalChallenges}</div>
+                    <div class="stat-label">Всего испытаний</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">${maxPoints}</div>
+                    <div class="stat-label">Максимум очков</div>
+                </div>
+            `;
+        }
+
+        // Загрузка при готовности DOM
+        document.addEventListener('DOMContentLoaded', function() {
+            if (window.gdData) {
+                updateStats();
+                renderChallengePlayers();
+                setupPlayerSearch();
+                setupPlayerFilters();
+            }
+        });
+    </script>
+</body>
+</html>
