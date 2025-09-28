@@ -13,12 +13,25 @@
             <nav>
                 <a href="index.html" class="active">Топ уровней</a>
                 <a href="players.html">Топ игроков</a>
+                <a href="challenge-list.html">Список испытаний</a>
+                <a href="challenge-top.html">Топ испытаний</a>
                 <a href="verify.html">Верификация</a>
                 <a href="about.html">О нас</a>
             </nav>
         </header>
 
         <main class="main-content">
+            <div class="list-info">
+                <h2>🔥 Топ демонов</h2>
+                <p>Самые сложные уровни приватного сервера Geometry Dash</p>
+            </div>
+            
+            <!-- Поиск уровней -->
+            <div class="search-container">
+                <input type="text" id="level-search" placeholder="Поиск по названию, создателю или верификатору...">
+                <button id="search-btn">Найти</button>
+            </div>
+            
             <div id="levels-container">
                 <!-- Уровни будут загружены автоматически через JavaScript -->
             </div>
@@ -28,9 +41,8 @@
     <script src="data.js"></script>
     <script>
         // Функция для отображения уровней
-        function renderLevels() {
+        function renderLevels(levels = window.gdData.levels) {
             const container = document.getElementById('levels-container');
-            const levels = window.gdData.levels;
             
             container.innerHTML = levels.map(level => `
                 <div class="demon-item">
@@ -39,9 +51,9 @@
                         <div class="name">${level.name}</div>
                         <div class="details">
                             <span>ID: ${level.gdId}</span>
-                            <span>Creator: ${level.creator}</span>
-                            <span>Verifier: ${level.verifier}</span>
-                            <span class="points">${level.points} pts</span>
+                            <span>Создатель: ${level.creator}</span>
+                            <span>Верификатор: ${level.verifier}</span>
+                            <span class="points">${level.points} очков</span>
                         </div>
                     </div>
                     <a href="https://youtu.be/${level.youtubeId}" target="_blank" class="youtube-link">
@@ -52,9 +64,33 @@
             `).join('');
         }
 
+        // Поиск уровней
+        function setupLevelSearch() {
+            const searchInput = document.getElementById('level-search');
+            const searchBtn = document.getElementById('search-btn');
+            
+            function performSearch() {
+                const query = searchInput.value.trim();
+                if (query === '') {
+                    renderLevels();
+                } else {
+                    const filteredLevels = window.gdData.searchLevels(query);
+                    renderLevels(filteredLevels);
+                }
+            }
+            
+            searchBtn.addEventListener('click', performSearch);
+            searchInput.addEventListener('keyup', function(event) {
+                if (event.key === 'Enter') {
+                    performSearch();
+                }
+            });
+        }
+
         // Загрузка уровней при готовности DOM
         document.addEventListener('DOMContentLoaded', function() {
             renderLevels();
+            setupLevelSearch();
         });
     </script>
 </body>
