@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GD Demon List - Топ уровней</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1 class="logo-gradient">GD DEMON LIST</h1>
+            <nav>
+                <a href="index.html" class="active">Топ уровней</a>
+                <a href="players.html">Топ игроков</a>
+                <a href="verify.html">Верификация</a>
+                <a href="about.html">О нас</a>
+            </nav>
+        </header>
+
+        <main class="main-content">
+            <div id="levels-container">
+                <!-- Уровни будут загружены автоматически через JavaScript -->
+            </div>
+        </main>
+    </div>
+
+    <script src="data.js"></script>
+    <script>
+        // Функция для отображения уровней
+        function renderLevels() {
+            const container = document.getElementById('levels-container');
+            const levels = window.gdData.levels;
+            
+            container.innerHTML = levels.map(level => `
+                <div class="demon-item">
+                    <div class="rank">${level.rank}</div>
+                    <div class="level-info">
+                        <div class="name">${level.name}</div>
+                        <div class="details">
+                            <span>ID: ${level.gdId}</span>
+                            <span>Creator: ${level.creator}</span>
+                            <span>Verifier: ${level.verifier}</span>
+                            <span class="points">${level.points} pts</span>
+                        </div>
+                    </div>
+                    <a href="https://youtu.be/${level.youtubeId}" target="_blank" class="youtube-link">
+                        <img src="https://img.youtube.com/vi/${level.youtubeId}/mqdefault.jpg" alt="${level.name}">
+                        <span>Смотреть</span>
+                    </a>
+                </div>
+            `).join('');
+        }
+
+        // Загрузка уровней при готовности DOM
+        document.addEventListener('DOMContentLoaded', function() {
+            renderLevels();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GD Demon List - Топ игроков</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1 class="logo-gradient">GD DEMON LIST</h1>
+            <nav>
+                <a href="index.html">Топ уровней</a>
+                <a href="players.html" class="active">Топ игроков</a>
+                <a href="verify.html">Верификация</a>
+                <a href="about.html">О нас</a>
+            </nav>
+        </header>
+
+        <main class="main-content">
+            <div id="players-container">
+                <!-- Игроки будут загружены автоматически через JavaScript -->
+            </div>
+        </main>
+    </div>
+
+    <script src="data.js"></script>
+    <script>
+        // Функция для отображения игроков
+        function renderPlayers() {
+            const container = document.getElementById('players-container');
+            const players = window.gdData.players;
+            
+            container.innerHTML = players.map(player => `
+                <div class="player-item">
+                    <div class="player-rank">${player.rank}</div>
+                    <div class="player-info">
+                        <div class="player-name">
+                            ${player.name}
+                            ${player.isAdmin ? '<span class="admin-badge">Admin</span>' : ''}
+                        </div>
+                        <div class="player-stats">
+                            <span>Демонов: ${player.demons}</span>
+                            <span>Очки: ${player.points}</span>
+                        </div>
+                        <div class="passed-levels">
+                            <strong>Пройденные уровни:</strong>
+                            ${player.passedLevels.map(levelId => {
+                                const level = window.gdData.levels.find(l => l.id === levelId);
+                                return level ? `#${level.rank} ${level.name} (${level.points} pts)` : '';
+                            }).filter(Boolean).join(', ')}
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Загрузка игроков при готовности DOM
+        document.addEventListener('DOMContentLoaded', function() {
+            renderPlayers();
+        });
+    </script>
+</body>
+</html>
