@@ -1,16 +1,21 @@
-## Hi there 👋
+# Hubl Gdps Demon List 🎮
 
-<!--
-**itzzbit/itzzbit** is a ✨ _special_ ✨ repository because its `README.md` (this file) appears on your GitHub profile.
+Официальный рейтинг уровней для hublgdps.
 
-Here are some ideas to get you started:
+## 🌐 Сайт
+https://itzzbit.github.io/itzzbit
 
-- 🔭 I’m currently working on ...
-- 🌱 I’m currently learning ...
-- 👯 I’m looking to collaborate on ...
-- 🤔 I’m looking for help with ...
-- 💬 Ask me about ...
-- 📫 How to reach me: ...
-- 😄 Pronouns: ...
-- ⚡ Fun fact: ...
--->
+## 📊 Функционал
+- Топ уровней на hublgdps
+- Рейтинг игроков с автоматическим подсчетом очков в коде сайта лол
+- Система верификации через Google Forms (я пока их не настроил лучше писать мне в дискорде либо в тг)
+- Адаптивный дизайн
+
+## 🛠 Технологии
+- HTML5
+- CSS3 (Glass morphism эффекты)
+- JavaScript (автоматический расчет очков)
+
+## 📞 Контакты
+- Discord: https://discord.gg/qRNDqPAB4
+- Telegram: https://t.me/Hubl_gdps
